@@ -1,0 +1,4 @@
+#include <windows.h>
+// 嵌入 UAC 清单（requireAdministrator）
+// RT_MANIFEST = 24, ID = 1
+CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "random_clicker.manifest"
