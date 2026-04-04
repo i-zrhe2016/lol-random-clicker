@@ -1,0 +1,45 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install MinGW
+      run: sudo apt-get install -y mingw-w64
+
+    - name: Compile resource file
+      run: x86_64-w64-mingw32-windres random_clicker.rc -o random_clicker_res.o
+
+    - name: Compile EXE
+      run: |
+        x86_64-w64-mingw32-gcc random_clicker_win.c random_clicker_res.o \
+          -o random_clicker.exe \
+          -lgdi32 -luser32 -lmsimg32 -mwindows -mconsole
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: random_clicker_windows
+        path: random_clicker.exe
+
+    - name: Create Release
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: build-${{ github.run_number }}
+        name: "Build #${{ github.run_number }}"
+        files: random_clicker.exe
+        generate_release_notes: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
