@@ -57,6 +57,6 @@ jobs:
         tag_name: ${{ steps.tag.outputs.name }}
         name: "Release ${{ steps.tag.outputs.name }}"
         files: random_clicker.exe
-        generate_release_notes: true
+        generate_release_notes: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
