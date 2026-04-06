@@ -34,7 +34,7 @@ jobs:
       run: |
         x86_64-w64-mingw32-gcc random_clicker_win.c random_clicker_res.o \
           -o random_clicker.exe \
-          -lgdi32 -luser32 -lmsimg32 -mwindows -mconsole
+          -lgdi32 -luser32 -lmsimg32 -lshell32 -mwindows -mconsole
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
