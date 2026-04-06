@@ -1,11 +1,18 @@
-name: Build Windows EXE
+name: Build and Release
 
 on:
   push:
     branches: [ master, main ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ master, main ]
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag（如 v1.0.0，留空则使用 build-N）'
+        type: string
+        required: false
 
 jobs:
   build:
@@ -33,13 +40,23 @@ jobs:
         name: random_clicker_windows
         path: random_clicker.exe
 
+    - name: Generate tag name
+      id: tag
+      run: |
+        if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          echo "name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        elif [[ -n "${{ inputs.release_tag }}" ]]; then
+          echo "name=${{ inputs.release_tag }}" >> $GITHUB_OUTPUT
+        else
+          echo "name=build-${{ github.run_number }}" >> $GITHUB_OUTPUT
+        fi
+
     - name: Create Release
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: build-${{ github.run_number }}
-        name: "Build #${{ github.run_number }}"
+        tag_name: ${{ steps.tag.outputs.name }}
+        name: "Release ${{ steps.tag.outputs.name }}"
         files: random_clicker.exe
-        generate_release_notes: false
+        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
